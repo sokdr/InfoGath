@@ -1,48 +1,69 @@
 #!/bin/bash
 echo "#######################################################"
 echo "#######################################################"
-echo "################ InfoGath Script v1.00 ################"
+echo "############### Infogath Script v1.01 #################"
 echo
-echo -n "Enter the FQDN/IP you want to search for: " 
-read remote
+read -p "Enter the FQDN you want to search for: " remote
 echo
-echo 
-ping -c1 $remote >/dev/null 
-if [ "$?" = 0 ]
+ping -c1 $remote >/dev/null 2>&1
+if [ "$?" = 0 ] ;
 then
 	echo "#################################################"
-	echo "IP address of the $remote: "  
+	echo "#################################################"
+	echo "IP address of the $remote: "
+	echo
 	host $remote 
 	echo
 	echo "#################################################"
-	echo "WHOIS information: "  
+	echo "#################################################"
+	echo "WHOIS information: "
+	echo
 	whois $remote 
 	echo
 	echo "#################################################"
-	echo "Checking HTTP Information:"
-	curl -I -L $remote 
+	echo "#################################################"
+	echo "DiG information: "
+	dig $remote
 	echo
 	echo "#################################################"
-	echo "Checking Geolocation of the WebServer: "
-	geoiplookup $remote 
+	echo "#################################################"
+	echo "Checking HTTP Information: "
+	echo
+	curl -I -L $remote
 	echo
 	echo "#################################################"
-	echo "Checking $remote  for Web technologies: "
-	whatweb -v $remote
+	echo "#################################################"
+	echo "Checking web technology: "
+	echo
+	whatweb $remote
 	echo
 	echo "#################################################"
-	read -p "Do you want to check network ranges for $remote ? [yn]" answer
-	if [[ "$answer" =~ ^[Yy]$ ]];
-	then
-	 	echo "-------------------------------------------------"
-		echo -n "Please enter the name/ip of the target host: (e.x google):: "
-		read ripe
-		whois -h whois.ripe.net $ripe 
-	else [[ "$answer" =~ ^[Nn]$ ]];
-	        echo "Exiting....script:"
-	fi
+	echo "#################################################"
+	echo
+	echo "#################################################"
+	echo "#################################################"
+	echo "Now checking SSL versions connections: "
+	openssl s_client -connect $remote:443 -tls1_2
+	echo
+	openssl s_client -connect $remote:443 -tls1_1
+	echo
+	openssl s_client -connect $remote:443 -ssl3
+	echo
+	openssl s_client -connect $remote:443 -ssl2
+	echo
+	echo "################################################"
+	echo "################################################"
+	echo "Checking HTTP methods (POST, DELETE, TRACE, HEAD): "
+	echo
+	curl -v -X POST $remote
+	echo
+	curl -v -X DELETE $remmote
+	echo
+	curl -v -X TRACE $remote
+	echo
+	curl -v -X HEAD $remote
+	echo
 else
-	echo "$remote does not respond...exiting script: "
-fi
-exit 0;
-
+	echo "Wrong Input .....exiting"
+fi	
+exit 0
